@@ -1,0 +1,261 @@
+import { get } from 'https';
+import React ,{useState,useEffect} from 'react';
+import './App.css';
+//import * as Call from './api';
+import   DataService from './services/data.service';  
+import   DataServiceMB from './services/data.serviceMusicbrainz';  
+import   DataServiceLyrics from './services/data.serviceLyrics';  
+import   DataServiceWiki from './services/data.serviceWiki';
+import   DataServiceDiscogs from './services/data.serviceDiscogs';
+
+
+const App = () => {
+   
+  const[listMB, setListMB] = useState("");
+  const[albums,setAlbums] =  useState({});
+  const[songs,setSongs] =  useState(Object);
+  const[lyric,setLyric] = useState(Object);
+
+  const[artistbio,setArtistbio] = useState(Object);
+  const[titles,setTitles]  =  useState({songname:'',albumname:'',artistname: ''});
+  const [spinnerLoading, setSpinnerLoading] = useState(true);
+ 
+
+  const getAlbums = async (artistid : string) =>{
+       
+    setAlbums( await DataServiceMB.getAlbums(artistid).then( response=>{ return {ct : response['release-count'],   response : response.releases} }).catch());
+    setSongs({});
+    setLyric({});
+
+  }
+
+  const getSongs = async (albumid : string) =>{
+    
+     setSongs( await DataServiceMB.getTracks(albumid).then( response=>{ return response }).catch());
+     setLyric({});
+
+   }
+
+  const getLyrics = async(title:string,artist:string)=>{
+ 
+    setLyric (await DataServiceLyrics.getLyrics(artist,title).then(response =>{return response}).catch(()=>{"No lyrics found"}))
+
+  }
+// to test https://www.mediawiki.org/wiki/API:REST_API/Reference#JavaScript_5
+  const getWiki= async(artist:string)=>{
+ 
+    setArtistbio ( DataServiceDiscogs.getData(artist));
+    //setArtistbio (await DataServiceWiki.getBio(artist).then(response =>{return response}).catch(()=>{}))
+    //console.log(artistbio.query.pages)
+   /* for(let key in artistbio.query.pages) {
+      var infoJSON = artistbio.query.pages[key];
+      console.log(infoJSON);
+    }*/ console.log(artistbio);
+
+  }
+ 
+  return (
+    <div className="App">
+
+      <div className='top'>
+           <SearchMB setListMB={setListMB} ></SearchMB>
+      </div>
+
+      <div className='body_container'>
+
+          <div className='col scrollable'>
+            { listMB  &&
+
+              <ListArtist listMB={listMB}  getAlbums={getAlbums} setAlbums={setAlbums} albums={albums} setTitles={setTitles} titles={titles} getWiki={getWiki}></ListArtist> 
+            }
+          </div>
+   
+          <div className='col scrollable'>
+
+           
+
+
+            <div className='artist_descriptio'>
+
+
+            </div>
+
+
+            <div className='albumslist'>
+            
+            {  albums && Object.keys( albums).length>0 &&
+                  
+                    <Albums alb={albums} songs={songs} setSongs={setSongs} getSongs={getSongs}></Albums> 
+            } 
+            </div>
+
+
+          </div>
+         
+          <div className='col scrollable'> 
+                {songs && (<h1 className='text-center'>{songs.title}</h1>)}
+              <ul>{songs && Object.keys(songs).length>0 &&
+
+                      songs.media[0].tracks.map((item:any,index:any) =>{
+
+                            return  <Track item={item} index={index}  getLyrics={getLyrics} > </Track>
+
+                    }) 
+          
+             }
+             </ul> 
+          
+          </div>
+
+
+          <div className='col scrollable'> 
+
+            <Lyric lyric={lyric} ></Lyric>
+          
+          </div>
+      </div>
+    
+      <div className='footer'>
+      </div>
+    
+    </div>
+   
+  );
+}
+
+ 
+
+//function to search by api artist and 
+const SearchMB = (par: any)=>{
+
+  const[searchValue,setSearchValue]= React.useState("");
+  
+  const handleSubmit = async (e:any) => {
+    //al cambio di ricerca è necessario pulire tuttii i figli che dovrebbero avere ostataoo
+    e.preventDefault();
+    console.log(searchValue)
+    if (!searchValue) return;
+         par.setListMB( await DataServiceMB.getArtist(searchValue).then(response=>{ return {ct : response.count,response : response.artists,offset : response.offset ,clicket: false} }).catch());
+    
+    };
+ 
+  return(
+    <form onSubmit={handleSubmit}>
+    <input placeholder='Cerca artista MB' type="text"
+        className="input"
+        onChange={e => setSearchValue(e.target.value)}/>
+    </form>
+    
+  );
+
+
+}
+ 
+
+
+const ListArtist = (value : any)=> {
+
+ 
+  return(
+     <div className='artistlist'>
+      
+        <ul>
+          {value.listMB.response.map((item:any,i:any)=>{
+
+             return <ArtistData item={item} setAlbums={value.setAlbums} getAlbums={value.getAlbums} albums={value.albums} setTitles={value.setTitles} titles={value.titles} getWiki={value.getWiki}></ArtistData>
+
+            })
+          }
+        </ul>
+
+     </div>
+       
+      
+
+  ); 
+
+}
+
+//listing artists
+const ArtistData = (item:any) =>{
+ // console.log(item.item.name);
+  return(
+    <li id={item.item.id}>
+
+      <h1 onClick={()=>{ item.getAlbums(item.item.id) ;item.setTitles({artistname :item.item.name});item.getWiki(item.item.name)}} > {item.item.name} </h1>
+    
+    </li>
+  );
+}
+//need to change on change research
+const Albums = (albums :  any) => {
+console.log(albums);
+ return(
+
+      <ul>{albums.alb.response.map((item:any,index:any) =>{
+
+         return  <Album item={item} getSongs={albums.getSongs} songs={albums.songs}>{item}</Album>
+
+          })
+        }
+      </ul> 
+  
+  )
+
+}
+
+const Album = (album : any) => {
+
+  
+ return(
+    <li>
+       <h5 onClick={()=>{  album.getSongs(album.item.id)}}>{album.item.title} - {album.item.date} - {album.item.country}</h5>
+   </li>
+  )
+
+}
+
+const Track = (track : any) =>{
+ // console.log(track.item['artist-credit']);
+  return(
+
+    <li onClick={()=>{ track.getLyrics(track.item.title,track.item['artist-credit'][0].artist.name) }}>
+       <h5><span>{track.index}:<b> {track.item.title} </b> {Math.floor(Number(track.item.length) / 60000)}:{Number(track.item.length) % 60} min</span> </h5>
+    </li>
+   
+  )
+
+}
+
+
+const Lyric = (item : any)=>{  
+
+  const replacejsr = (text : string)=>{
+    if(text)
+    return text.split('\n').map((item,idx)=>{
+      return(  
+        <React.Fragment key={idx}>
+        {item}<br/> 
+        </React.Fragment>
+        );
+    })
+   return null;
+   }
+
+   //console.log(item);
+  return(
+    <p>
+      { item.lyric && Object.keys(item.lyric).length>0  && ( 
+        <div className="lyric">
+           <h4 className='lyrics_title' ></h4>  
+           <p className='lyrics_text'> { replacejsr(item.lyric.lyrics)}</p>
+       </div>
+        )
+       }
+    </p>
+  )
+ 
+
+}
+
+export default App;
