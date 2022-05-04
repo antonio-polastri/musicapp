@@ -12,27 +12,32 @@ import { Lyrics } from './services/lib/core/musicObject';
 
 const App = () => {
    
-  const[listMB, setListMB] = useState("");
-  const[albums,setAlbums] =  useState({});
-  const[songs,setSongs] =  useState(Object);
-  const[lyric,setLyric] = useState(Object);
+  const [listMB, setListMB] = useState("");
+  const [albums,setAlbums] =  useState({});
+  const [songs,setSongs] =  useState(Object);
+  const [lyric,setLyric] = useState(Object);
 
-  const[artistbio,setArtistbio] = useState(Object);
-  const[titles,setTitles]  =  useState({songname:'',albumname:'',artistname: ''});
+  const [artistbio,setArtistbio] = useState(Object);
+  const [titles,setTitles]  =  useState({songname:'',albumname:'',artistname: ''});
   const [spinnerLoading1, setSpinnerLoading1] = useState(false);
   const [spinnerLoading2, setSpinnerLoading2] = useState(false);
   const [spinnerLoading3, setSpinnerLoading3] = useState(false);
   const [spinnerLoading4, setSpinnerLoading4] = useState(false);
-  const[researchType,setResearchType] = useState("artist");
+  const [researchType,setResearchType] = useState("artist");
  
 
   const getAlbums = async (artistid : string) =>{
+     
     setAlbums({});
+    setSongs({});
+    setLyric({});
+    
     setSpinnerLoading2(true);
-     setAlbums( await DataServiceDiscogs.getAlbums(artistid).then( response=>{ return  response }).catch());
-     setSpinnerLoading2(false);
-     setSongs({});
-     setLyric({});
+    
+    setAlbums( await DataServiceDiscogs.getAlbums(artistid).then( response=>{ return  response }).catch());
+     
+    setSpinnerLoading2(false);
+    
 
   }
 
@@ -48,7 +53,7 @@ const App = () => {
     setSpinnerLoading4(true);
     setTitles({...titles,songname :title});
     setLyric (await DataServiceLyrics.getLyrics(titles.artistname?.split("(")[0],title).then(response =>{return response}).catch(()=>{"No lyrics found"}))
-    console.log(lyric);
+    //console.log(lyric);
     setSpinnerLoading4(false);
   }
   const getWiki = async(artist:string)=>{
@@ -62,7 +67,9 @@ const App = () => {
     <div className="App">
      
       <div className='top'>
-           <SearchMB setListMB={setListMB} setResearchType={setResearchType} researchType={researchType} setSpinnerLoading1={setSpinnerLoading1}></SearchMB>
+
+           <SearchMB setListMB={setListMB} listMB={listMB} setResearchType={setResearchType} researchType={researchType} setSpinnerLoading1={setSpinnerLoading1}></SearchMB>
+      
       </div>
 
       <div className='body_container'>
@@ -96,7 +103,7 @@ const App = () => {
             {  albums && Object.keys( albums).length>0 && <h1>Albums</h1>}
             {  albums && Object.keys( albums).length>0 &&
                   
-                    <Albums alb={albums} songs={songs} setSongs={setSongs} getSongs={getSongs}></Albums> 
+                    <Albums albms={albums} songs={songs} setSongs={setSongs} getSongs={getSongs}></Albums> 
             } 
             </div>
 
@@ -156,10 +163,11 @@ const SearchMB = (par: any)=>{
   
   const handleSubmit = async (e:any) => {
     e.preventDefault();
-    console.log(searchValue)
+    //console.log(searchValue)
     if (!searchValue) return;
         par.setSpinnerLoading1(true);
         par.setListMB( await DataServiceDiscogs.getData(searchValue).then(response=>response).catch());
+        //console.log(par.listMB);
         par.setSpinnerLoading1(false);
     };
  
@@ -188,7 +196,7 @@ const ListArtist = (value : any)=> {
      <div className='artistlist'>
       
         <ul>
-          {value.listMB.results.map((item:any,i:any)=>{
+          {value.listMB.map((item:any,i:any)=>{
             
              return <ArtistData item={item} setAlbums={value.setAlbums} getAlbums={value.getAlbums} albums={value.albums} setTitles={value.setTitles} titles={value.titles} getWiki={value.getWiki} ></ArtistData>
 
@@ -225,36 +233,37 @@ const Artist = (item:any)=>{
 }
 //listing artists
 const ArtistData = (item:any) =>{
-  // console.log(item);
+ //   console.log(item);
   return(
-    <li id={item.item.id} className="artist_cont" >
+
+    <li id={item.item._id} className="artist_cont" >
         
-       { item.item.thumb ?(<img className='thumb' src={item.item.thumb} alt={item.item.title} /> )
+       { item.item.image ? (<img className='thumb' src={item.item.image} alt={item.item.name} /> )
        :
-        (<img className='thumb' src='https://dummyimage.com/340x120/c24646/ffffff.png&text=NO+IMG' alt={item.item.title} /> )
+        (<img className='thumb' src='https://dummyimage.com/340x120/c24646/ffffff.png&text=NO+IMG' alt={item.item.name} /> )
       }
-      <h1 title={item.item.title}  onClick={()=>{ item.getAlbums(item.item.id) ;item.setTitles({artistname :item.item.title,artistId:item.item.id}); item.getWiki(item.item.id) }} > {item.item.title} </h1>
+      <h1 title={item.item.name}  onClick={()=>{ item.getAlbums(item.item._id) ;item.setTitles({artistname :item.item.name,artistId:item.item._id}); item.getWiki(item.item._id) }} > {item.item.name} </h1>
       
     
     </li>
   );
 }
 //need to change on change research
-const Albums = (albums :  any) => {
-console.log(albums);
+ //const Albums = (albums :  any) => {
+console.log(albums.albms);
  return(
-<>
-      <ul>{albums.alb.releases.map((item:any,index:any) =>{
-
-         return  item.main_release && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}>{item}</Album>
+  <>
+      <ul>{albums.albms.map((item:any) =>{
+      console.log(item._id+"******************")
+         return  item._id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
 
           })
         }
       </ul> 
        <h1>Single & More</h1>
-      <ul>{albums.alb.releases.map((item:any,index:any) =>{
+      <ul>{albums.albms.map((item:any)=>{
 
-        return  !item.main_release && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}>{item}</Album>
+        return  !item._id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
 
          })
        }
@@ -265,12 +274,12 @@ console.log(albums);
 }
 
 const Album = (album : any) => {
-
- // console.log(album)
+  //console.log(album.item+"---------------")
+  
  return(
    
     <li>
-       <h5 onClick={()=>{  album.getSongs(album.item.main_release)}}>{album.item.title} - {album.item.year} {album.item.format &&   album.item.format} </h5>
+       <h5 onClick={()=>{  album.getSongs(album.item._id)}}>{album.item.name} - {album.item.date} {album.item.format &&   album.item.format} </h5>
    </li>
   
   )
