@@ -14,15 +14,42 @@ class DataServiceDiscogs{
     getData = async(q : string) => {
 
         
-        return await Call.axiosRequestDS.get(`database/search?q=${q}&type=artist${this.token}`)
-        .then(response =>{ return new ArtistAdpt.ArtistDiscogs(response.data)} );
+        return await Call.axiosRequestDS
+        .get(`database/search?q=${q}&type=artist${this.token}`)
+        .then(response =>{
+
+            var retvalue : ArtistAdpt.ArtistDiscogs[] = [];
+
+            response.data.results.forEach( (element:any) => {
+               // let a : ArtistAdpt.ArtistDiscogs = new ArtistAdpt.ArtistDiscogs(element);
+                retvalue.push(new ArtistAdpt.ArtistDiscogs(element));
+            });
+           //console.log(retvalue)
+            return retvalue;
+        });
+
+        
 
 
     }
     getAlbums = async(artistid : string) => {
 
-      
-      return await Call.axiosRequestDS.get(`/artists/${artistid}/releases?page=1&per_page=400&sort=year&sort_order=asc`).then(response => response.data);
+      //resolve pagination problems
+      return await Call.axiosRequestDS
+      .get(`/artists/${artistid}/releases?page=1&per_page=400&sort=year&sort_order=asc`)
+      .then(response =>{ 
+        
+        let retValue : AlbumAdpt.AlbumDiscogs[] = [];
+        response.data.releases.forEach((element: object) =>{
+
+            retValue.push(new AlbumAdpt.AlbumDiscogs(element));
+
+        })
+       // console.log(retValue)
+        return retValue;
+    
+        
+    });
 
 
   } 

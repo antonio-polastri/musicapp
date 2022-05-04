@@ -1,6 +1,9 @@
 import axios from 'axios';
 import * as Call from './lib/config/api';
 import * as Adapter from './lib/core/adapter/LyricsAdpt'
+import * as AlbumAdpt from './lib/core/adapter/AlbumAdpt'
+import * as ArtistAdpt from './lib/core/adapter/ArtistAdpt'
+import * as TrackAdpt from './lib/core/adapter/TrackAdpt'
 
 //https://musicbrainz.org/doc/MusicBrainz_Entity
 

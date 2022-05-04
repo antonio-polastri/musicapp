@@ -16,6 +16,8 @@ export class ArtistDeezer implements Artist{
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
     constructor(json : object){
         this.origin= "deezen";
+        this.name = '';
+        this.components = 0;
     }
   
     setAlbums(albums: Album[]): void {
@@ -45,9 +47,16 @@ export class ArtistDiscogs implements Artist{
     albums!: Album[];
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(json : object){
+    constructor(json : any){
+       // console.log(json);
         this.origin= "discogs";
-        this.name = 
+        this.name = json.title;
+        this.components = 0;
+        this._id = json.id ;
+        this.image= json.thumb;
+        this.video = '';
+        this.descriptions = '';
+        this.albums = [];
     }
   
     setAlbums(albums: Album[]): void {

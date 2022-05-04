@@ -34,10 +34,14 @@ export interface Album{
     origin : Origin;
     image : string;
     video : string;
-    date : Date;
+    date : string;
     release : string;
     artist_id : number;
     tracks : Track[];
+    label : string;
+    format : string;
+    url : string;
+
     setTracks(tracks : Track[]) : void;
     addTrack(track : Track) : void;
     getTracks() : Track[] | null;

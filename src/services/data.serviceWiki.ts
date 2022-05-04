@@ -1,7 +1,9 @@
 import axios from 'axios';
 import fetchJsonp from 'fetch-jsonp';
 import * as Call from './lib/config/api';
-
+import * as AlbumAdpt from './lib/core/adapter/AlbumAdpt'
+import * as ArtistAdpt from './lib/core/adapter/ArtistAdpt'
+import * as TrackAdpt from './lib/core/adapter/TrackAdpt'
  
 
 class DataServiceWikiPage {

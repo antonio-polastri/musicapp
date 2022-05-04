@@ -8,11 +8,15 @@ export class AlbumDeezer implements Album{
     _id!: number;
     image!: string;
     video!: string;
-    date!: Date;
+    date!: string;
     release!: string;
     artist_id!: number;
     tracks!: Track[];
     origin: Origin;
+    label! : string;
+    format! : string;
+    url! : string;
+;
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
     constructor(json : object){
@@ -43,15 +47,32 @@ export class AlbumDiscogs implements Album{
     _id!: number;
     image!: string;
     video!: string;
-    date!: Date;
+    date!: string;
     release!: string;
     artist_id!: number;
     tracks!: Track[];
     origin: Origin;
+    label! : string;
+    format! : string;
+    url! : string;
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(json : object){
+    constructor(json : any){
+
+        //console.log(json)
         this.origin= "discogs";
+        this._id = json.main_release;
+        this.name = json.title;
+        this.image = '';
+        this.label = json.label;
+        this.lenght = 0;
+        this.date = json.year;
+        this.format = json.format;
+        this.release = json.release;
+        this.artist = json.artist;
+        this.url = json.resource_url;
+
+        
         //elaborate json
     }
      
@@ -79,17 +100,21 @@ export class AlbumItunes implements Album{
     _id!: number;
     image!: string;
     video!: string;
-    date!: Date;
+    date!: string;
     release!: string;
     artist_id!: number;
     tracks!: Track[];
     origin: Origin;
+    label!: string;
+    format!: string;
+    url!: string;
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
     constructor(json : object){
         this.origin= "itunes";
         //elaborate json
     }
+   
      
     setTracks(tracks : Track[]) : void{
         
@@ -115,11 +140,14 @@ export class AlbumMusicBrainz implements Album{
     _id!: number;
     image!: string;
     video!: string;
-    date!: Date;
+    date!: string;
     release!: string;
     artist_id!: number;
     tracks!: Track[];
     origin: Origin;
+    label!: string;
+    format!: string;
+    url!: string;
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
     constructor(json : object){
