@@ -11,7 +11,7 @@ class DataServiceWikiPage {
 
      getBio = async (artist : string) =>{
              
-         let artistexplosed:string =  artist.replace(' ','%20');
+     let artistexplosed:string =  artist.replace(' ','%20');
 
       return await fetchJsonp(`https://en.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&titles=${artistexplosed}&rvprop=content&rvsection=0&rvparse` )
           .then(function(response) {

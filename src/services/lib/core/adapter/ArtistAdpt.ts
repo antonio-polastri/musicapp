@@ -14,10 +14,14 @@ export class ArtistDeezer implements Artist{
     albums!: Album[];
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(json : object){
-        this.origin= "deezen";
-        this.name = '';
+    constructor(json : any){
+        this.origin= "deezer";
+      //  console.log(json);
+        this.name = json.name;
         this.components = 0;
+        this._id = json.id;
+        this.image = json.picture;
+
     }
   
     setAlbums(albums: Album[]): void {
@@ -115,8 +119,12 @@ export class ArtistMusicBrainz implements Artist{
     albums!: Album[];
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(json : object){
+    constructor(json : any){
+        console.log(json)
         this.origin= "musicbrainz";
+        this._id = json.id;
+        this.name = json.name;
+        this.descriptions = json.disambiguation;
     }
   
     setAlbums(albums: Album[]): void {

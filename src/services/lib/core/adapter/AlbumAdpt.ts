@@ -19,22 +19,18 @@ export class AlbumDeezer implements Album{
 ;
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(json : object){
-        this.origin= "deezen";
+    constructor(json : any){
+        this.origin= "deezer";
+       // console.log(json)
+       this.name = json.title;
+       this.date = json.release_date;
+       this._id = json.id;
+       this.image = json.cover_medium;
+       this.url = json.link;
+
+
     }
      
-    setTracks(tracks : Track[]) : void{
-        
-    };
-
-    addTrack(track : Track) : void{
-        this.tracks.push(track);
-
-    };
-
-    getTracks() : Track[] | null{
-        return this.tracks;
-    };
 
 
 }
@@ -75,20 +71,7 @@ export class AlbumDiscogs implements Album{
         
         //elaborate json
     }
-     
-    setTracks(tracks : Track[]) : void{
-        
-    };
-
-    addTrack(track : Track) : void{
-        this.tracks.push(track);
-
-    };
-
-    getTracks() : Track[] | null{
-        return this.tracks;
-    };
-
+    
 
 }
 
@@ -116,18 +99,6 @@ export class AlbumItunes implements Album{
     }
    
      
-    setTracks(tracks : Track[]) : void{
-        
-    };
-
-    addTrack(track : Track) : void{
-        this.tracks.push(track);
-
-    };
-
-    getTracks() : Track[] | null{
-        return this.tracks;
-    };
 
 
 }
@@ -150,23 +121,17 @@ export class AlbumMusicBrainz implements Album{
     url!: string;
 
     // eslint-disable-next-line @typescript-eslint/no-useless-constructor
-    constructor(json : object){
+    constructor(json : any){
         this.origin= "musicbrainz";
+        this.name = json.title;
+        this._id = json.id;
+        this.date = json.date;
+
+
         //elaborate json
     }
      
-    setTracks(tracks : Track[]) : void{
-        
-    };
-
-    addTrack(track : Track) : void{
-        this.tracks.push(track);
-
-    };
-
-    getTracks() : Track[] | null{
-        return this.tracks;
-    };
+     
 
 
 }

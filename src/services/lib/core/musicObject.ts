@@ -1,4 +1,4 @@
-export type Origin  = "discogs" | "deezen" | "musicbrainz" | "itunes" | "lyricsovh"; 
+export type Origin  = "discogs" | "deezer" | "musicbrainz" | "itunes" | "lyricsovh" |"musixmatch"; 
 export interface Track{
 
     name : string;
@@ -11,6 +11,36 @@ export interface Track{
     album_id : number;
     artist_id : number;
     lyrics : string;
+    master_url : string;
+    released : string;
+    notes: string;
+    album_details : object;
+    extraartist : string[];
+    position : string;
+    type : string;
+    link? : string;
+
+
+}
+export interface TrackDetail{
+
+    name : string;
+    name_short : string;
+    lenght : number;
+    artist : Object;
+    _id : number;
+    origin : Origin;
+    image : string;
+    video : string;
+    album_id : number;
+    artist_id : number;
+    lyrics : string;
+    released : string;
+    album_details : object;
+    position : string;
+    type : string;
+    link? : string;
+    preview?:string;
 
 
 }
@@ -41,27 +71,20 @@ export interface Album{
     label : string;
     format : string;
     url : string;
-
-    setTracks(tracks : Track[]) : void;
-    addTrack(track : Track) : void;
-    getTracks() : Track[] | null;
-
-
+ 
 }
 
  export interface Artist{
 
     name : string;
-    components : number;
+    components? : number;
     _id : number;
     origin : Origin;
     image : string;
-    video : string;
-    descriptions : string;
-    albums : Album[];
-    setAlbums(albums : Album[]) : void;
-    addAlbum(album : Album) : void;
-    getAlbums() : Album[];
+    video? : string;
+    descriptions? : string;
+    albums? : Album[];
+   
 
 }
  

@@ -1,98 +1,186 @@
-import { get } from 'https';
 import React ,{useState,useEffect} from 'react';
 import './App.css';
-//import * as Call from './api';
-import   DataService from './services/data.serviceItues';  
-import   DataServiceMB from './services/data.serviceMusicbrainz';  
+ 
+/* SERVICE */
 import   DataServiceLyrics from './services/data.serviceLyrics';  
-import   DataServiceDiscogs from './services/data.serviceDiscogs';
+import   DataServiceDeezer from './services/data.serviceDeezer';
+
+
+
+
+/*COMPONENTS */
 import LoadingSpinner from './component/spinner';
-import { Lyrics } from './services/lib/core/musicObject';
+import { Albums as AlbumsComponent}   from './component/albums';
+import { TrackDetails   as TrackDetailsComponent} from './component/trackdetails';
+import { ListArtist as ListArtistComponent} from './component/artists';
+import { Artist as ArtistComponent} from './component/artist';
+import { TrackItem as TrackItemComponent} from './component/trackitem';
+import { Lyric as LyricComponent} from './component/lyric';
+import { Search as SearchComponent} from './component/search';
+
+
+
+
+//import   {Album} from './component/album';
+
+import { Track,Artist} from './services/lib/core/musicObject';
+import  {ServiceWrapper}  from  './services/lib/core/di/serviceWrapper'
+import dataServiceDiscogs from './services/data.serviceDiscogs';
+import dataServiceMusicbrainz from './services/data.serviceMusicbrainz';
+import dataServiceDeezer from './services/data.serviceDeezer';
+import dataServiceMusicxMatch from './services/data.serviceMusicxMatch';
+
 
 
 const App = () => {
    
-  const [listMB, setListMB] = useState("");
+  const [listMB, setListMB] = useState( Array<Artist>());
   const [albums,setAlbums] =  useState({});
   const [songs,setSongs] =  useState(Object);
   const [lyric,setLyric] = useState(Object);
+  const [trackDetail,setTrackDetail] = useState(Object);
 
   const [artistbio,setArtistbio] = useState(Object);
   const [titles,setTitles]  =  useState({songname:'',albumname:'',artistname: ''});
+
   const [spinnerLoading1, setSpinnerLoading1] = useState(false);
   const [spinnerLoading2, setSpinnerLoading2] = useState(false);
   const [spinnerLoading3, setSpinnerLoading3] = useState(false);
   const [spinnerLoading4, setSpinnerLoading4] = useState(false);
-  const [researchType,setResearchType] = useState("artist");
- 
 
-  const getAlbums = async (artistid : string) =>{
+  const [researchType,setResearchType] = useState("artist");
+  const [researchMType,setResearchMType] = useState("discogs");
+
+  const getAlbums = async (artistid : string,origin : Origin) =>{
      
     setAlbums({});
     setSongs({});
     setLyric({});
+    setTrackDetail({});
     
     setSpinnerLoading2(true);
-    
-    setAlbums( await DataServiceDiscogs.getAlbums(artistid).then( response=>{ return  response }).catch());
-     
-    setSpinnerLoading2(false);
-    
+    //qui il service dipende da il tipo di dato presente, di conseguenza non si può utlizzare in questo modo
 
+    
+   // setAlbums( await DataServiceDiscogs.getAlbums(artistid).then( response=>{ return  response }).catch());
+    setAlbums( await new ServiceWrapper(DataServiceDeezer,origin).getAlbums(artistid).then( response=>{ return  response }).catch());
+    //depending on wich service you wnat to use
+
+    //setAlbums( await new ServiceWrapper(DataServiceMusicBraniz).getAlbums(artistid).then( response=>{ return  response }).catch()); 
+    //setAlbums( await new ServiceWrapper(DataServiceDiscogs).getAlbums(artistid).then( response=>{ return  response }).catch());
+
+    setSpinnerLoading2(false);
+     
   }
 
-  const getSongs = async (albumid : string) =>{
+  const getSongs = async (albumid : string,albumName : string,origin: Origin) =>{
+
       setSpinnerLoading3(true);
       setSongs({});
-      setSongs( await DataServiceDiscogs.getTracks(albumid).then( response=>{ return response }).catch());
+      setTrackDetail({});
+
+      setTitles({...titles, albumname :albumName});
+      //setSongs( await DataServiceDiscogs.getTracks(albumid).then( response=>{ return response }).catch());
+      setSongs( await new ServiceWrapper(DataServiceDeezer,origin).getTracks(albumid).then( response=>{ return response }).catch());
+
+
       setLyric({});
       setSpinnerLoading3(false);
    }
 
-  const getLyrics = async(title:string,artist:string)=>{
+  const getLyrics = async(title:string,artist:string ,trackdata : Track, trackid? : any)=>{
+
     setSpinnerLoading4(true);
+    setTrackDetail({});
+
+    setTrackDetail(await getTrackDetails(trackid));
+    //console.log(trackDetail)
     setTitles({...titles,songname :title});
-    setLyric (await DataServiceLyrics.getLyrics(titles.artistname?.split("(")[0],title).then(response =>{return response}).catch(()=>{"No lyrics found"}))
-    //console.log(lyric);
+    
+     setLyric (await DataServiceLyrics.getLyrics(titles.artistname?.split("(")[0],title ).then(response =>{return response}).catch(()=>{"No lyrics found"}))
+     if(lyric.lyric && lyric.lyric.indexOf("No lyric") === -1)
+        setLyric (await dataServiceMusicxMatch.getTrackFromLists(titles.artistname?.split("(")[0],title ).then(
+          response =>{
+          
+            return {'lyric' : response}
+          }
+          ).catch(()=>{"No lyrics found"}))
+  
     setSpinnerLoading4(false);
+
   }
+
+  const getTrackDetails = async(id : any) =>{
+   // let a await DataServiceDeezer.getTrack(id).then(response=>{return response}).catch() : null;
+   // console.log("********"+a.id);
+    return  new ServiceWrapper(DataServiceDeezer).getTrack(id).then(response=>{return response}).catch()  ;
+
+  }
+
   const getWiki = async(artist:string)=>{
     setArtistbio({});
-    setArtistbio ( await DataServiceDiscogs.getBio(artist).then(response =>{return response}).catch(()=>{"No lyrics found"}))
+    setTrackDetail({});
+
+    //setArtistbio ( await DataServiceDiscogs.getBio(artist).then(response =>{return response}).catch(()=>{"No lyrics found"}))
+    setArtistbio ( await DataServiceDeezer.getBio(artist).then(response =>{return response}).catch(()=>{"No lyrics found"}))
+      
+  }
+
+  const getArtist = async(q : string) =>{
+
+     setSpinnerLoading1(true);
+
+     listMB.length = 0;
+    // setListMB(await new ServiceWrapper(dataServiceDiscogs).getArtist(q).then(response=>response).catch());
+     //par.setListMB( await DataServiceDiscogs.getArtistFree(searchValue).then(response=>response).catch());
      
+     
+     setListMB((await new ServiceWrapper(dataServiceDeezer).getArtist(q).then(response=>response).catch())
+        .concat(await new ServiceWrapper(dataServiceDiscogs).getArtist(q).then(response=>response).catch())
+        .concat(await new ServiceWrapper(dataServiceMusicbrainz).getArtist(q).then(response=>response).catch())
+     
+     );
+
+     //order listMB
+    
+  
+  
+     setSpinnerLoading1(false);
 
   }
  
   return (
+
     <div className="App">
      
       <div className='top'>
 
-           <SearchMB setListMB={setListMB} listMB={listMB} setResearchType={setResearchType} researchType={researchType} setSpinnerLoading1={setSpinnerLoading1}></SearchMB>
+           <SearchComponent getArtist={getArtist} setResearchType={setResearchType} researchType={researchType} setSpinnerLoading1={setSpinnerLoading1}></SearchComponent>
       
       </div>
 
       <div className='body_container'>
 
+        <div className='semicontainer'>
+
           <div className='col scrollable'>
           
             {spinnerLoading1 ? <LoadingSpinner /> : listMB  &&
 
-              <ListArtist listMB={listMB}  getAlbums={getAlbums} setAlbums={setAlbums} albums={albums} setTitles={setTitles} titles={titles} getWiki={getWiki}></ListArtist> 
-            }
+              <ListArtistComponent listMB={listMB}  getAlbums={getAlbums} setAlbums={setAlbums} albums={albums} setTitles={setTitles} titles={titles} getWiki={getWiki}></ListArtistComponent> 
+           
+           }
           </div>
    
           <div className='col scrollable'>
          
           {   spinnerLoading2 && <LoadingSpinner /> }
 
-
             <div className='artist_descriptio'>
              
-           {artistbio &&
+            {artistbio &&
 
-              <Artist artist={artistbio}></Artist>
-
+              <ArtistComponent artist={artistbio}></ArtistComponent>
             }
 
             </div>
@@ -100,43 +188,54 @@ const App = () => {
 
             <div className='albumslist'>
             
-            {  albums && Object.keys( albums).length>0 && <h1>Albums</h1>}
+            {  albums && Object.keys( albums).length>0 && <div className="title_sl"><h1>Albums</h1></div>}
             {  albums && Object.keys( albums).length>0 &&
                   
-                    <Albums albms={albums} songs={songs} setSongs={setSongs} getSongs={getSongs}></Albums> 
+               <AlbumsComponent albms={albums} songs={songs} setSongs={setSongs} getSongs={getSongs}></AlbumsComponent> 
             } 
+            </div>
+ 
+          </div>
+          </div>
+
+          <div className='semicontainer'>
+
+            <div className='col scrollable'> 
+
+              {spinnerLoading3 && <LoadingSpinner /> }
+
+              <div className='songslist'>
+                
+                {  songs && (<div className='title_sl'><h1 className='text-center'>{titles.albumname}</h1> 
+                            <h1 className='text-center'>  {titles.artistname}  </h1>
+                            </div>)
+                }
+                        <ul>
+                          {songs  && Object.keys( songs).length>0 &&
+
+                                songs.map((item:any,index:any) =>{
+
+                                      return  <TrackItemComponent item={item} index={index}  getLyrics={getLyrics} > </TrackItemComponent>
+
+                                }) 
+                    
+                          }
+                      </ul> 
+                </div>
             </div>
 
 
-          </div>
-         
-          <div className='col scrollable'> 
-          {spinnerLoading3 && <LoadingSpinner /> }
-            <div className='songslist'>
-              {  songs && (<><h1 className='text-center'>{songs.title}</h1> 
-                           <h1 className='text-center'>  {songs.released}</h1>
-                          </>)}
-                      <ul>{songs  && Object.keys( songs).length>0 &&
+            <div className='col scrollable'> 
 
-                              songs.tracklist.map((item:any,index:any) =>{
+              { spinnerLoading4 ?<LoadingSpinner />:<>
+                
+                <TrackDetailsComponent item={trackDetail}></TrackDetailsComponent>   
 
-                                    return  <Track item={item} index={index}  getLyrics={getLyrics} > </Track>
-
-                            }) 
-                  
-                    }
-                    </ul> 
-               </div>
-          </div>
-
-
-          <div className='col scrollable'> 
-          {spinnerLoading4 ?<LoadingSpinner />:<>
-              <h1>{titles.songname}</h1>  <br/>    
-              <Lyric lyric={lyric}   ></Lyric>
-              </>
-            }
-          </div>
+                <LyricComponent lyric={lyric}></LyricComponent>
+                </>
+              }
+            </div>
+          </div> 
       </div>
     
       <div className='footer'>
@@ -148,189 +247,7 @@ const App = () => {
 }
 
  
-
-//function to search by api artist and 
-const SearchMB = (par: any)=>{
-
-  const[searchValue,setSearchValue]= React.useState("");
-  
-  /*const handleChange = (event : any)=>{
-
-    console.log(event);
-    par.setResearchType(event.target.value);
-
-  }*/
-  
-  const handleSubmit = async (e:any) => {
-    e.preventDefault();
-    //console.log(searchValue)
-    if (!searchValue) return;
-        par.setSpinnerLoading1(true);
-        par.setListMB( await DataServiceDiscogs.getData(searchValue).then(response=>response).catch());
-        //console.log(par.listMB);
-        par.setSpinnerLoading1(false);
-    };
- 
-  return(
-    <form onSubmit={handleSubmit}>
-    <input placeholder='Cerca artista MB' type="text"
-        className="input"
-        onChange={e => setSearchValue(e.target.value)}/>
-    <div>
-      <input type="radio" name="searchtype" value="artist" onChange={e=>par.setResearchType(e.target.value)} checked={par.researchType === "artist"}/> Artist  
-      <input type="radio" name="searchtype" value="song"  onChange={e=>par.setResearchType(e.target.value)} checked={par.researchType === "song"} />Song   
-    </div>
-    </form>
-    
-  );
-
-
-}
  
 
-
-const ListArtist = (value : any)=> {
-
- //console.log(value)
-  return(
-     <div className='artistlist'>
-      
-        <ul>
-          {value.listMB.map((item:any,i:any)=>{
-            
-             return <ArtistData item={item} setAlbums={value.setAlbums} getAlbums={value.getAlbums} albums={value.albums} setTitles={value.setTitles} titles={value.titles} getWiki={value.getWiki} ></ArtistData>
-
-            })
-          }
-        </ul>
-
-     </div>
-       
-      
-
-  ); 
-
-}
-const Artist = (item:any)=>{
-
-  return(
-
-    <div>
-      <h1>{item.artist.name}</h1><br/> 
-      <p>{item.artist.profile}</p><br/> 
-      <div>
-      { item.artist.members && <h1>Members</h1>}
-      <br/>
-            { item.artist.members && Object.keys( item.artist.members).length>1 && item.artist.members.map((itemm:any,index:any)=>{
-
-              return   <li>{itemm.name}</li>   
-
-      })}
-      </div>
-    </div>
-
-  );
-}
-//listing artists
-const ArtistData = (item:any) =>{
- //   console.log(item);
-  return(
-
-    <li id={item.item._id} className="artist_cont" >
-        
-       { item.item.image ? (<img className='thumb' src={item.item.image} alt={item.item.name} /> )
-       :
-        (<img className='thumb' src='https://dummyimage.com/340x120/c24646/ffffff.png&text=NO+IMG' alt={item.item.name} /> )
-      }
-      <h1 title={item.item.name}  onClick={()=>{ item.getAlbums(item.item._id) ;item.setTitles({artistname :item.item.name,artistId:item.item._id}); item.getWiki(item.item._id) }} > {item.item.name} </h1>
-      
-    
-    </li>
-  );
-}
-//need to change on change research
- //const Albums = (albums :  any) => {
-console.log(albums.albms);
- return(
-  <>
-      <ul>{albums.albms.map((item:any) =>{
-      console.log(item._id+"******************")
-         return  item._id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
-
-          })
-        }
-      </ul> 
-       <h1>Single & More</h1>
-      <ul>{albums.albms.map((item:any)=>{
-
-        return  !item._id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
-
-         })
-       }
-     </ul> 
-  </>
-  )
-
-}
-
-const Album = (album : any) => {
-  //console.log(album.item+"---------------")
-  
- return(
-   
-    <li>
-       <h5 onClick={()=>{  album.getSongs(album.item._id)}}>{album.item.name} - {album.item.date} {album.item.format &&   album.item.format} </h5>
-   </li>
-  
-  )
-
-}
-
-const Track = (track : any) =>{
-   //console.log(track);
-   
-  return(
-
-    <li onClick={()=>{ track.getLyrics(track.item.title.split("(")[0],track.item.artist); }}>
-       <h5><span>{track.item.position}:<b> {track.item.title} </b> {track.item.duration} </span> </h5>
-       <audio  >
-         <source src="https://cdns-preview-5.dzcdn.net/stream/c-57d4be92340bafa2626c9b60a8eab42e-6.mp3"></source>
-       </audio>
-    </li>
-   
-  )
-
-}
-
-
-const Lyric = (item : any)=>{  
-
-  const replacejsr = (text : string)=>{
-    if(text)
-    return text.split('\n').map((item,idx)=>{
-      return(  
-        <React.Fragment key={idx}>
-        {item}<br/> 
-        </React.Fragment>
-        );
-    })
-   return null;
-   }
-
-   // console.log(item);
-  return(
-    <p> 
-      { item.lyric.lyric   && Object.keys(item.lyric.lyric).length>0  && ( 
-        <div className="lyric">
-           <h4 className='lyrics_title' ></h4>  
-           <p className='lyrics_text lyrics'> { replacejsr(item.lyric.lyric)}</p>
-       </div>
-        )
-       } 
-    </p>
-  )
- 
-
-}
 
 export default App;
