@@ -68,3 +68,7 @@ export const axiosRequestMusix = axios.create({
     'User-Agent' : 'MyMusicaap/1.0 +http://localhost'
     }*/
 });
+export const axiosReq = axios.create({
+  baseURL: " http://localhost:9999/api/",
+   
+});

@@ -7,12 +7,12 @@ export class TrackDeezer implements Track{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
-    album_id!: number;
-    artist_id!: number;
+    albumid!: number;
+    artistid!: number;
     lyrics!: string;
     master_url!: string;
     released!: string;
@@ -27,7 +27,7 @@ export class TrackDeezer implements Track{
     constructor(json : any,i : number){
         this.origin= "deezer";
        // console.log(i);
-        this._id =  json.id;
+        this.id =  json.id;
         this.name = json.title_short;
         this.lenght = json.duration;
         this.link = json.link;
@@ -46,12 +46,12 @@ export class TrackDiscogs implements Track{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
-    album_id!: number;
-    artist_id!: number;
+    albumid!: number;
+    artistid!: number;
     lyrics!: string;
     master_url!: string;
     released!: string;
@@ -67,11 +67,11 @@ export class TrackDiscogs implements Track{
         this.name = track.title;
         this.lenght = parseInt(track.duration);
         this.artist = json.artists_sort;
-        this._id = 0;
+        this.id = 0;
         this.image = '';
         this.video = '';
-        this.album_id = json.master_id;
-        this.artist_id = 0;
+        this.albumid = json.masterid;
+        this.artistid = 0;
         this.lyrics ='';
         this.master_url = json.master_url;
         this.released = json.released;
@@ -92,12 +92,12 @@ export class TrackItunes implements Track{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
-    album_id!: number;
-    artist_id!: number;
+    albumid!: number;
+    artistid!: number;
     lyrics!: string;
     master_url!: string;
     released!: string;
@@ -124,12 +124,12 @@ export class TrackMusicBrainz implements Track{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
-    album_id!: number;
-    artist_id!: number;
+    albumid!: number;
+    artistid!: number;
     lyrics!: string;
     master_url!: string;
     released!: string;
@@ -144,7 +144,7 @@ export class TrackMusicBrainz implements Track{
     constructor(json : any){
         this.origin= "musicbrainz";
       //  console.log(json);
-        this._id = json.id;
+        this.id = json.id;
         this.name = json.title;
         this.lenght = json.lenght;
         this.position = json.position;

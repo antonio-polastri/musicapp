@@ -2,10 +2,8 @@ import React ,{useState,useEffect} from 'react';
 import './App.css';
  
 /* SERVICE */
-import   DataServiceLyrics from './services/data.serviceLyrics';  
+
 import   DataServiceDeezer from './services/data.serviceDeezer';
-
-
 
 
 /*COMPONENTS */
@@ -17,18 +15,14 @@ import { Artist as ArtistComponent} from './component/artist';
 import { TrackItem as TrackItemComponent} from './component/trackitem';
 import { Lyric as LyricComponent} from './component/lyric';
 import { Search as SearchComponent} from './component/search';
-
-
-
+import * as Call from './services/lib/config/api';
 
 //import   {Album} from './component/album';
 
-import { Track,Artist} from './services/lib/core/musicObject';
-import  {ServiceWrapper}  from  './services/lib/core/di/serviceWrapper'
-import dataServiceDiscogs from './services/data.serviceDiscogs';
-import dataServiceMusicbrainz from './services/data.serviceMusicbrainz';
-import dataServiceDeezer from './services/data.serviceDeezer';
-import dataServiceMusicxMatch from './services/data.serviceMusicxMatch';
+import { Track,Artist, Origin} from './services/lib/core/musicObject';
+import { AxiosInstance } from 'axios';
+
+ 
 
 
 
@@ -43,13 +37,19 @@ const App = () => {
   const [artistbio,setArtistbio] = useState(Object);
   const [titles,setTitles]  =  useState({songname:'',albumname:'',artistname: ''});
 
+  const [searchtype, setSearchtype] = useState({type:'',q:''})
+  const [researchType,setResearchType] = useState("artist");
+  const [researchMType,setResearchMType] = useState("discogs");
+
+
+
   const [spinnerLoading1, setSpinnerLoading1] = useState(false);
   const [spinnerLoading2, setSpinnerLoading2] = useState(false);
   const [spinnerLoading3, setSpinnerLoading3] = useState(false);
   const [spinnerLoading4, setSpinnerLoading4] = useState(false);
+  
+  const proxy : AxiosInstance = Call.axiosReq
 
-  const [researchType,setResearchType] = useState("artist");
-  const [researchMType,setResearchMType] = useState("discogs");
 
   const getAlbums = async (artistid : string,origin : Origin) =>{
      
@@ -59,16 +59,10 @@ const App = () => {
     setTrackDetail({});
     
     setSpinnerLoading2(true);
-    //qui il service dipende da il tipo di dato presente, di conseguenza non si può utlizzare in questo modo
-
+   
     
-   // setAlbums( await DataServiceDiscogs.getAlbums(artistid).then( response=>{ return  response }).catch());
-    setAlbums( await new ServiceWrapper(DataServiceDeezer,origin).getAlbums(artistid).then( response=>{ return  response }).catch());
-    //depending on wich service you wnat to use
-
-    //setAlbums( await new ServiceWrapper(DataServiceMusicBraniz).getAlbums(artistid).then( response=>{ return  response }).catch()); 
-    //setAlbums( await new ServiceWrapper(DataServiceDiscogs).getAlbums(artistid).then( response=>{ return  response }).catch());
-
+    setAlbums(( await proxy.get(`albums?artistid=${artistid}&origin=${origin}`)).data );//await new ServiceWrapper(DataServiceDeezer,origin).getAlbums(artistid).then( response=>{ return  response }).catch());
+    
     setSpinnerLoading2(false);
      
   }
@@ -79,9 +73,8 @@ const App = () => {
       setSongs({});
       setTrackDetail({});
 
-      setTitles({...titles, albumname :albumName});
-      //setSongs( await DataServiceDiscogs.getTracks(albumid).then( response=>{ return response }).catch());
-      setSongs( await new ServiceWrapper(DataServiceDeezer,origin).getTracks(albumid).then( response=>{ return response }).catch());
+      setTitles({...titles, albumname :albumName}); 
+      setSongs( ( await proxy.get(`songs?albumid=${albumid}&origin=${origin}`)).data);//await new ServiceWrapper(DataServiceDeezer,origin).getTracks(albumid).then( response=>{ return response }).catch());
 
 
       setLyric({});
@@ -94,26 +87,34 @@ const App = () => {
     setTrackDetail({});
 
     setTrackDetail(await getTrackDetails(trackid));
-    //console.log(trackDetail)
+    
     setTitles({...titles,songname :title});
     
+    setLyric( ( await proxy.get(`lyric?artist=${titles.artistname?.split("(")[0]}&title=${title}`)).data);//await new ServiceWrapper(DataServiceDeezer,origin).getTracks(albumid).then( response=>{ return response }).catch());
+/*
+
      setLyric (await DataServiceLyrics.getLyrics(titles.artistname?.split("(")[0],title ).then(response =>{return response}).catch(()=>{"No lyrics found"}))
+    
      if(lyric.lyric && lyric.lyric.indexOf("No lyric") === -1)
+
         setLyric (await dataServiceMusicxMatch.getTrackFromLists(titles.artistname?.split("(")[0],title ).then(
+
           response =>{
           
             return {'lyric' : response}
           }
           ).catch(()=>{"No lyrics found"}))
   
+*/    
+
+
     setSpinnerLoading4(false);
 
   }
-
+//funziona solo con deezer
   const getTrackDetails = async(id : any) =>{
-   // let a await DataServiceDeezer.getTrack(id).then(response=>{return response}).catch() : null;
-   // console.log("********"+a.id);
-    return  new ServiceWrapper(DataServiceDeezer).getTrack(id).then(response=>{return response}).catch()  ;
+  
+    return( (await proxy.get(`trackdetail?id=${id}`)).data)
 
   }
 
@@ -121,30 +122,18 @@ const App = () => {
     setArtistbio({});
     setTrackDetail({});
 
-    //setArtistbio ( await DataServiceDiscogs.getBio(artist).then(response =>{return response}).catch(()=>{"No lyrics found"}))
     setArtistbio ( await DataServiceDeezer.getBio(artist).then(response =>{return response}).catch(()=>{"No lyrics found"}))
       
   }
-
+//eliminare il get artist e creare un oggetto ricerca che in base al tipo di ricerca popola le rispettive liste
   const getArtist = async(q : string) =>{
 
      setSpinnerLoading1(true);
 
      listMB.length = 0;
-    // setListMB(await new ServiceWrapper(dataServiceDiscogs).getArtist(q).then(response=>response).catch());
-     //par.setListMB( await DataServiceDiscogs.getArtistFree(searchValue).then(response=>response).catch());
-     
-     
-     setListMB((await new ServiceWrapper(dataServiceDeezer).getArtist(q).then(response=>response).catch())
-        .concat(await new ServiceWrapper(dataServiceDiscogs).getArtist(q).then(response=>response).catch())
-        .concat(await new ServiceWrapper(dataServiceMusicbrainz).getArtist(q).then(response=>response).catch())
-     
-     );
+ 
+     setListMB( ( await proxy.get(`artist?q=${q}`)).data);
 
-     //order listMB
-    
-  
-  
      setSpinnerLoading1(false);
 
   }
@@ -245,9 +234,5 @@ const App = () => {
    
   );
 }
-
- 
- 
-
 
 export default App;

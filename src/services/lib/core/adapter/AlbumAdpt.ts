@@ -5,12 +5,12 @@ export class AlbumDeezer implements Album{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     image!: string;
     video!: string;
     date!: string;
     release!: string;
-    artist_id!: number;
+    artistid!: number;
     tracks!: Track[];
     origin: Origin;
     label! : string;
@@ -24,7 +24,7 @@ export class AlbumDeezer implements Album{
        // console.log(json)
        this.name = json.title;
        this.date = json.release_date;
-       this._id = json.id;
+       this.id = json.id;
        this.image = json.cover_medium;
        this.url = json.link;
 
@@ -40,12 +40,12 @@ export class AlbumDiscogs implements Album{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     image!: string;
     video!: string;
     date!: string;
     release!: string;
-    artist_id!: number;
+    artistid!: number;
     tracks!: Track[];
     origin: Origin;
     label! : string;
@@ -57,7 +57,7 @@ export class AlbumDiscogs implements Album{
 
         //console.log(json)
         this.origin= "discogs";
-        this._id = json.main_release;
+        this.id = json.main_release;
         this.name = json.title;
         this.image = '';
         this.label = json.label;
@@ -80,12 +80,12 @@ export class AlbumItunes implements Album{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     image!: string;
     video!: string;
     date!: string;
     release!: string;
-    artist_id!: number;
+    artistid!: number;
     tracks!: Track[];
     origin: Origin;
     label!: string;
@@ -108,12 +108,12 @@ export class AlbumMusicBrainz implements Album{
     name!: string;
     lenght!: number;
     artist!: string;
-    _id!: number;
+    id!: number;
     image!: string;
     video!: string;
     date!: string;
     release!: string;
-    artist_id!: number;
+    artistid!: number;
     tracks!: Track[];
     origin: Origin;
     label!: string;
@@ -124,7 +124,7 @@ export class AlbumMusicBrainz implements Album{
     constructor(json : any){
         this.origin= "musicbrainz";
         this.name = json.title;
-        this._id = json.id;
+        this.id = json.id;
         this.date = json.date;
 
 

@@ -6,7 +6,7 @@ export class ArtistDeezer implements Artist{
     
     name!: string;
     components!: number;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
@@ -19,7 +19,7 @@ export class ArtistDeezer implements Artist{
       //  console.log(json);
         this.name = json.name;
         this.components = 0;
-        this._id = json.id;
+        this.id = json.id;
         this.image = json.picture;
 
     }
@@ -43,7 +43,7 @@ export class ArtistDiscogs implements Artist{
 
     name!: string;
     components!: number;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
@@ -56,7 +56,7 @@ export class ArtistDiscogs implements Artist{
         this.origin= "discogs";
         this.name = json.title;
         this.components = 0;
-        this._id = json.id ;
+        this.id = json.id ;
         this.image= json.thumb;
         this.video = '';
         this.descriptions = '';
@@ -81,7 +81,7 @@ export class ArtistItunes implements Artist{
     
     name!: string;
     components!: number;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
@@ -111,7 +111,7 @@ export class ArtistMusicBrainz implements Artist{
      
     name!: string;
     components!: number;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
@@ -122,7 +122,7 @@ export class ArtistMusicBrainz implements Artist{
     constructor(json : any){
         console.log(json)
         this.origin= "musicbrainz";
-        this._id = json.id;
+        this.id = json.id;
         this.name = json.name;
         this.descriptions = json.disambiguation;
     }

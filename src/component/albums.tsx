@@ -6,16 +6,16 @@ export const  Albums : any =  (albums :  any) => {
   return(
    <>
        <ul>{albums.albms.map((item:any) =>{
-      // console.log(item._id+"******************")
-          return  item._id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
+      // console.log(item.id+"******************")
+          return  item.id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
  
            })
          }
        </ul> 
         <h1>Single & More</h1>
-       <ul>{albums.albms.map((item:any)=>{
+        <ul>{albums.albms.map((item:any)=>{
  
-         return  !item._id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
+         return  !item.id && <Album item={item} getSongs={albums.getSongs} songs={albums.songs}/>
  
           })
         }

@@ -9,8 +9,9 @@ export const Search = (par: any)=>{
     
      if (!searchValue) return;
      
+         //par.getArtist(searchValue);
          par.getArtist(searchValue);
-       
+       //modifica alla pressione della ricerca in base alla ricerca popola le liste opportune
      };
   
    return(
@@ -21,7 +22,7 @@ export const Search = (par: any)=>{
          onChange={e => setSearchValue(e.target.value)}/>
      <div>
        <input type="radio" name="searchtype" value="artist" onChange={e=>par.setResearchType(e.target.value)} checked={par.researchType === "artist"}/> Artist  
-       <input type="radio" name="searchtype" value="song"  onChange={e=>par.setResearchType(e.target.value)} checked={par.researchType === "song"} />Song   
+       <input type="radio" name="searchtype" value="track"  onChange={e=>par.setResearchType(e.target.value)} checked={par.researchType === "track"} />Song   
      </div>
     {/* <div>
        <input type="radio" name="rest" value="deezen" onChange={e=>par.setResearchMType(e.target.value)} checked={par.researchType === "deezen"}/> deezen  

@@ -4,12 +4,12 @@ export interface Track{
     name : string;
     lenght : number;
     artist : string;
-    _id : number;
+    id : number;
     origin : Origin;
     image : string;
     video : string;
-    album_id : number;
-    artist_id : number;
+    albumid : number;
+    artistid : number;
     lyrics : string;
     master_url : string;
     released : string;
@@ -28,12 +28,12 @@ export interface TrackDetail{
     name_short : string;
     lenght : number;
     artist : Object;
-    _id : number;
+    id : number;
     origin : Origin;
     image : string;
     video : string;
-    album_id : number;
-    artist_id : number;
+    albumid : number;
+    artistid : number;
     lyrics : string;
     released : string;
     album_details : object;
@@ -47,10 +47,10 @@ export interface TrackDetail{
 export interface Lyrics{
 
     
-    _id : number;
+    id : number;
     origin : Origin;
-    album_id : number;
-    artist_id : number;
+    albumid : number;
+    artistid : number;
     lyric : string;
 
 
@@ -60,13 +60,13 @@ export interface Album{
     name : string;
     lenght : number;
     artist : string;
-    _id : number;
+    id : number;
     origin : Origin;
     image : string;
     video : string;
     date : string;
     release : string;
-    artist_id : number;
+    artistid : number;
     tracks : Track[];
     label : string;
     format : string;
@@ -78,7 +78,7 @@ export interface Album{
 
     name : string;
     components? : number;
-    _id : number;
+    id : number;
     origin : Origin;
     image : string;
     video? : string;

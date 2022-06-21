@@ -7,12 +7,12 @@ export class TrackDetailDeezer implements TrackDetail{
     name_short!: string;
     lenght!: number;
     artist!: Object;
-    _id!: number;
+    id!: number;
     origin!: Origin;
     image!: string;
     video!: string;
-    album_id!: number;
-    artist_id!: number;
+    albumid!: number;
+    artistid!: number;
     lyrics!: string;
     released!: string;
     album_details!: object;
@@ -25,7 +25,7 @@ export class TrackDetailDeezer implements TrackDetail{
         this.origin = 'deezer';
       // console.log(typeof(this)+"**"+json);
         this.artist = json.artist;
-        this._id = json.id;
+        this.id = json.id;
         this.released = json.release_date;
         this.preview = json.preview;
         this.link = json.link;
