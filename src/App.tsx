@@ -1,9 +1,12 @@
 import React ,{useState,useEffect} from 'react';
+import { Link } from "react-router-dom";
 import './App.css';
+
  
+
 /* SERVICE */
 
-import   DataServiceDeezer from './services/data.serviceDeezer';
+//import   DataServiceDeezer from './services/data.serviceDeezer';
 
 
 /*COMPONENTS */
@@ -21,34 +24,53 @@ import * as Call from './services/lib/config/api';
 
 import { Track,Artist, Origin} from './services/lib/core/musicObject';
 import { AxiosInstance } from 'axios';
-
+import { Filter } from './component/filter';
+import { Layer } from './component/layer';
+import { Badge, Box, Button, Divider, Flex, Grid, GridItem, Heading, Spinner ,Text, useToast} from '@chakra-ui/react';
+import { SkeletonLoader } from './component/skel';
+import DataServiceCall from './services/data.service'
  
-
+ 
+import { Map, Marker, ZoomControl } from 'pigeon-maps'
+import { stamenTerrain } from 'pigeon-maps/providers'
+import { MapInner } from './component/mapinner';
 
 
 const App = () => {
    
   const [listMB, setListMB] = useState( Array<Artist>());
+  const [listMBFiltered, setListMBFiltered] = useState( Array<Artist>());
+
   const [albums,setAlbums] =  useState({});
+  const [albumsFiltered,setAlbumFiltered] =  useState({});
   const [songs,setSongs] =  useState(Object);
   const [lyric,setLyric] = useState(Object);
   const [trackDetail,setTrackDetail] = useState(Object);
 
   const [artistbio,setArtistbio] = useState(Object);
+  const [artistEvent,setArtistEvent] = useState(Object);
   const [titles,setTitles]  =  useState({songname:'',albumname:'',artistname: ''});
 
   const [searchtype, setSearchtype] = useState({type:'',q:''})
   const [researchType,setResearchType] = useState("artist");
   const [researchMType,setResearchMType] = useState("discogs");
 
-
+  const [artistdraw, setArtistdraw] = useState(false);
+  const [albumdraw, setAlbumdraw] = useState(false);
+  const [songlistdraw, setSonglist] = useState(false);
+  const [lyricdraw, setLyricdraw] = useState(false);
+  const [eventdraw, setEventdraw] = useState(false);
+  const [biodraw, setBiodraw] = useState(false);
 
   const [spinnerLoading1, setSpinnerLoading1] = useState(false);
   const [spinnerLoading2, setSpinnerLoading2] = useState(false);
   const [spinnerLoading3, setSpinnerLoading3] = useState(false);
   const [spinnerLoading4, setSpinnerLoading4] = useState(false);
-  
-  const proxy : AxiosInstance = Call.axiosReq
+
+  const toast = useToast();
+
+
+ 
 
 
   const getAlbums = async (artistid : string,origin : Origin) =>{
@@ -60,9 +82,12 @@ const App = () => {
     
     setSpinnerLoading2(true);
    
+    let albums : any = await DataServiceCall.getAlbums(artistid ,origin );
     
-    setAlbums(( await proxy.get(`albums?artistid=${artistid}&origin=${origin}`)).data );//await new ServiceWrapper(DataServiceDeezer,origin).getAlbums(artistid).then( response=>{ return  response }).catch());
-    
+    setAlbums(albums); 
+    setAlbumFiltered(albums); 
+    setAlbumdraw(true)
+
     setSpinnerLoading2(false);
      
   }
@@ -72,11 +97,9 @@ const App = () => {
       setSpinnerLoading3(true);
       setSongs({});
       setTrackDetail({});
-
-      setTitles({...titles, albumname :albumName}); 
-      setSongs( ( await proxy.get(`songs?albumid=${albumid}&origin=${origin}`)).data);//await new ServiceWrapper(DataServiceDeezer,origin).getTracks(albumid).then( response=>{ return response }).catch());
-
-
+      setSonglist(true)
+      setTitles({...titles, albumname : albumName}); 
+      setSongs( await DataServiceCall.getSongs(albumid ,albumName ,origin));
       setLyric({});
       setSpinnerLoading3(false);
    }
@@ -89,9 +112,14 @@ const App = () => {
     setTrackDetail(await getTrackDetails(trackid));
     
     setTitles({...titles,songname :title});
-    
-    setLyric( ( await proxy.get(`lyric?artist=${titles.artistname?.split("(")[0]}&title=${title}`)).data);//await new ServiceWrapper(DataServiceDeezer,origin).getTracks(albumid).then( response=>{ return response }).catch());
-/*
+     
+    setLyricdraw(true)
+
+    setLyric( await DataServiceCall.getLyrics(title,titles.artistname?.split("(")[0]));//( await proxy.get(`lyric?artist=${titles.artistname?.split("(")[0]}&title=${title}`)).data);//await new ServiceWrapper(DataServiceDeezer,origin).getTracks(albumid).then( response=>{ return response }).catch());
+
+    console.log('lyric returne'+lyric)
+
+    /*
 
      setLyric (await DataServiceLyrics.getLyrics(titles.artistname?.split("(")[0],title ).then(response =>{return response}).catch(()=>{"No lyrics found"}))
     
@@ -106,132 +134,294 @@ const App = () => {
           ).catch(()=>{"No lyrics found"}))
   
 */    
-
-
-    setSpinnerLoading4(false);
-
+setSpinnerLoading4(false);
+ 
   }
 //funziona solo con deezer
   const getTrackDetails = async(id : any) =>{
   
-    return( (await proxy.get(`trackdetail?id=${id}`)).data)
+    return await DataServiceCall.getTrackDetail(id);
 
   }
-
+/*
   const getWiki = async(artist:string)=>{
     setArtistbio({});
     setTrackDetail({});
 
     setArtistbio ( await DataServiceDeezer.getBio(artist).then(response =>{return response}).catch(()=>{"No lyrics found"}))
       
+  }*/
+ 
+
+
+  const getBio = async(artist:string)=>{
+
+    setArtistbio('');
+    let dataBio : any = await DataServiceCall.getBio(artist);
+    console.log(dataBio)
+    dataBio.error ?  toastNoData("Bio data","Bio doesn't exist",'warning',toast) :setArtistbio(dataBio) ;
+    
+    
+     
+    
   }
-//eliminare il get artist e creare un oggetto ricerca che in base al tipo di ricerca popola le rispettive liste
+
+  //eliminare il get artist e creare un oggetto ricerca che in base al tipo di ricerca popola le rispettive liste
   const getArtist = async(q : string) =>{
 
      setSpinnerLoading1(true);
 
      listMB.length = 0;
- 
-     setListMB( ( await proxy.get(`artist?q=${q}`)).data);
+     let ar : any = await DataServiceCall.getArtist(q);
+     setListMB( ar);
+     setListMBFiltered(ar)
 
      setSpinnerLoading1(false);
 
   }
+  const getEvent = async (artist:string) => {
+    setEventdraw(false)
+    setArtistEvent({})
+    let ar : [] = await DataServiceCall.getConcerts(artist);
+   // console.log(ar.length)
+    ar.length > 0 ? setEventdraw(true) : toastNoData("Events data","Event doesn't reach",'warning',toast)
+    setArtistEvent(ar); 
+  }
+  
+  const getSearch = async(q:string,tos:string) =>{
+
+    //listMB.length = 0;
+   // listMBFiltered.length = 0;
+
+    setAlbums({});
+    setAlbumFiltered({})
+    setSongs({});
+    setLyric({});
+    setTrackDetail({});
+
+    setSpinnerLoading1(true);
+    setSpinnerLoading2(true);
+
+    setArtistdraw(true)
+
+    let ar : any = await DataServiceCall.getDataSearch(q,tos);
+    
+
+    switch(tos){
+      case 'artist':{
+
+        setListMB( ar);
+        setListMBFiltered(ar)
+
+        break;
+      }
+      case 'album':{
+         setAlbums(ar); 
+         setAlbumFiltered(ar); 
+         
+        break;
+      }
+      case 'track':{
+        setSonglist(true)
+        break;
+      }
+      
+    }
+
+    setSpinnerLoading1(false);
+    setSpinnerLoading2(false);
+
+  }
+  const toastNoData =  (title:string,text:string,state:string,toast:any)=>{
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+      
+    toast({
+      title: title,
+      description: text,
+      status: state,
+      duration: 4000,
+      isClosable: true,
+    })
+  }
+
  
+
   return (
-
+   
+    
+   
     <div className="App">
+ 
      
-      <div className='top'>
+                    <Layer side='left' size="full" context="Songs" open ={songlistdraw} close={setSonglist} children={
+ 
 
-           <SearchComponent getArtist={getArtist} setResearchType={setResearchType} researchType={researchType} setSpinnerLoading1={setSpinnerLoading1}></SearchComponent>
+                     ( 
+                     <div className='semicontainer'>
+
+                      <div className='col scrollable'> 
+
+                        {spinnerLoading3 && <LoadingSpinner /> }
+
+                        <div className='songslist'>
+                          
+                                  <ul>
+                                    {songs  && Object.keys( songs).length>0 &&
+
+                                          songs.map((item:any,index:any) =>{
+
+                                                return  <TrackItemComponent item={item} index={index}  getLyrics={getLyrics} > </TrackItemComponent>
+
+                                          }) 
+                              
+                                    }
+                                </ul> 
+                          </div>
+                      </div>
+                    <div className='col scrollable'> 
+
+                        { spinnerLoading4 ?<LoadingSpinner />:<>
+                          
+                          <TrackDetailsComponent item={trackDetail}></TrackDetailsComponent>   
+
+                          <LyricComponent lyric={lyric}></LyricComponent>
+                          </>
+                        }
+                      </div>
+                      </div> 
+                   )}></Layer>  
+         
+                {artistbio.artist  && (
+
+                    <Layer side="bottom" size="md" context="" open ={biodraw} close={setBiodraw} children={ <>
+                    <div style={{display:'flex'}}>
+                        <img src={artistbio.artist.image[2]['#text']} alt={artistbio.artist.name}></img> 
+                        <div style={{padding:'1rem'}}>
+                          <h1 style={{fontSize:'2rem'}} >{artistbio.artist.name} </h1> 
+                          <br></br>
+                          <div dangerouslySetInnerHTML={{__html:artistbio.artist.bio.summary}}>
+                          </div> 
+                        </div>
+                        
+                    </div>   
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    <h1 style={{fontSize:'1.5rem'}} >Similar Artist</h1> 
+                        {artistbio.artist.similar.artist.map((item: any,index: any) =>{
+
+                                        return  <div  className='similar_artist'>{item.name}</div>
+
+                                        })
+                      }
+
+                        </div> 
+                      </>}></Layer>            
+                    
+                    ) 
+                }
+          <Layer side="top" size="full" context="Events" open ={eventdraw} close={setEventdraw} children={ 
+            <>  <Grid templateColumns='repeat(3, 1fr)' gap={6}>
+              {
+              artistEvent.length > 0  &&
+               (artistEvent.map((item:any,i:any)=>{
+
+                    return <>
+                     
+                      <GridItem  >
+
+                        <Heading as='h1' size='md' fontWeight='bold' mb={3}>
+                          {item.title}
+                          
+                        </Heading>
+                        <Text fontSize='lg' >{ item.start	}  </Text>
+                        {item.entities[0] && <Text fontSize='sm'> {item.entities[0].name}</Text>}
+                        {item.entities[0] && <Text fontSize='sm'  mb={3}> {item.entities[0].formatted_address}</Text>}
+                        {item.entities[0] && 
+                          <MapInner lat={item.location[0]} lon={item.location[1]}></MapInner>
+                          }
+                      </GridItem>
+                      
+                   
+                   
+                    </>
+                  })
+                )
+              } </Grid>
+                </>}
+              ></Layer>     
+
+
+
+           {/*  <Layer side="right" size="full" context="Lyric" open ={lyricdraw} close={setLyricdraw} children={ <>
+              {   spinnerLoading4 && <LoadingSpinner /> }
+                <TrackDetailsComponent item={trackDetail}></TrackDetailsComponent>   
+
+                <LyricComponent lyric={lyric}></LyricComponent>
+                </>}></Layer>            
+           */}
+      <div className='top'>
+  
+
+           <SearchComponent getSearch={getSearch} getArtist={getArtist}  setResearchType={setResearchType} researchType={researchType} setSpinnerLoading1={setSpinnerLoading1}></SearchComponent>
       
       </div>
 
       <div className='body_container'>
 
         <div className='semicontainer'>
+         
 
           <div className='col scrollable'>
+
+          {  listMBFiltered && Object.keys( listMBFiltered).length>0 &&  <Filter list={listMB} listFiltered={listMBFiltered} setListFiltered={setListMBFiltered}></Filter>}
           
             {spinnerLoading1 ? <LoadingSpinner /> : listMB  &&
 
-              <ListArtistComponent listMB={listMB}  getAlbums={getAlbums} setAlbums={setAlbums} albums={albums} setTitles={setTitles} titles={titles} getWiki={getWiki}></ListArtistComponent> 
+              <ListArtistComponent setEventdraw={setEventdraw} getEvent={getEvent} setBiodraw={setBiodraw} listMB={listMBFiltered} getBio={getBio} artistbio={artistbio} getAlbums={getAlbums} setAlbums={setAlbums} albums={albums} setTitles={setTitles} titles={titles} /*getWiki={getWiki}*/></ListArtistComponent> 
            
            }
           </div>
    
           <div className='col scrollable'>
+
+         
          
           {   spinnerLoading2 && <LoadingSpinner /> }
 
-            <div className='artist_descriptio'>
+           {/* <div className='artist_descriptio'>
              
             {artistbio &&
 
               <ArtistComponent artist={artistbio}></ArtistComponent>
             }
 
-            </div>
+          </div>*/}
 
 
             <div className='albumslist'>
             
-            {  albums && Object.keys( albums).length>0 && <div className="title_sl"><h1>Albums</h1></div>}
-            {  albums && Object.keys( albums).length>0 &&
+            {  albumsFiltered && Object.keys( albumsFiltered).length>0 && 
+            <> 
+              
+                <Filter list={albums} listFiltered={albumsFiltered} setListFiltered={setAlbumFiltered}> </Filter>
+              
+            </>
+            }
+            {  albumsFiltered && Object.keys( albumsFiltered).length>0 &&
                   
-               <AlbumsComponent albms={albums} songs={songs} setSongs={setSongs} getSongs={getSongs}></AlbumsComponent> 
+               <AlbumsComponent albms={albumsFiltered} songs={songs} setSongs={setSongs} getSongs={getSongs}></AlbumsComponent> 
             } 
             </div>
  
           </div>
           </div>
 
-          <div className='semicontainer'>
-
-            <div className='col scrollable'> 
-
-              {spinnerLoading3 && <LoadingSpinner /> }
-
-              <div className='songslist'>
-                
-                {  songs && (<div className='title_sl'><h1 className='text-center'>{titles.albumname}</h1> 
-                            <h1 className='text-center'>  {titles.artistname}  </h1>
-                            </div>)
-                }
-                        <ul>
-                          {songs  && Object.keys( songs).length>0 &&
-
-                                songs.map((item:any,index:any) =>{
-
-                                      return  <TrackItemComponent item={item} index={index}  getLyrics={getLyrics} > </TrackItemComponent>
-
-                                }) 
-                    
-                          }
-                      </ul> 
-                </div>
-            </div>
-
-
-            <div className='col scrollable'> 
-
-              { spinnerLoading4 ?<LoadingSpinner />:<>
-                
-                <TrackDetailsComponent item={trackDetail}></TrackDetailsComponent>   
-
-                <LyricComponent lyric={lyric}></LyricComponent>
-                </>
-              }
-            </div>
-          </div> 
+          
       </div>
-    
-      <div className='footer'>
-      </div>
+     
     
     </div>
-   
+    
   );
 }
 

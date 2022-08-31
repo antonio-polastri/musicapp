@@ -124,7 +124,7 @@ div.albumslist li:hover, div.songslist li h5:hover{
 }
 .body_container{
   display: flex;
-  height: 92vh;
+  height: 76vh;
 }
 .top{
   padding: 1vh 0;
@@ -159,13 +159,13 @@ https://css-tricks.com/the-current-state-of-styling-scrollbars-in-css/
 
 .scrollable::-webkit-scrollbar-track
 {
-  -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
-  background-color: #F5F5F5;
+  /*-webkit-box-shadow: inset 0 0 4px rgba(0,0,0,0.3);*/
+  background-color: #CCC;
 }
 
 .scrollable::-webkit-scrollbar
 {
-  width: 5px;
+  width: 8px;
   background-color: #F5F5F5;
 }
 
@@ -197,17 +197,28 @@ div.title_sl{
 }
 div.semicontainer{
 flex: 2;
-height: 88vh;
-width: 50vw;
+height: 78vh;
+/*width: 50vw;*/
 position: relative;
 display: flex;
 }
-
+.similar_artist{
+  padding: 1rem
+}
 div.artist_name{
   display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: self-end;
     overflow: hidden;
+}
+.subname_elements{
+  display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.bio_button{
+  margin-top: 5px;
+  padding: 0.3rem 0.5rem;
 }
 
 .stamp-discogs{
@@ -231,12 +242,43 @@ div.artist_name{
 }
 
 .stamp{
-   font-weight: 800;
+  font-weight: 800;
     text-transform: capitalize;
     padding: 0.3rem 0.5rem;
     display: block;
-    border-radius: 10px;
+    border-radius: 8px;
     margin-top: 5px;
+    font-size: 11px;
+}
+
+input.artist{
+  
+    width: 100%;
+    margin: 0 1rem;
+    line-height: 2rem;
+    width: 50%;
+    text-align: center;
+    margin: 0 auto;
+    /* left: 50%; */
+    position: sticky;
+    align-items: center;
+    top: 0;
+    left: 25%;
+    background-color: #fff;
+ 
+}
+img.amalogo{
+  height: 25px;
+  padding: 5px;
+}
+#audiocontainer{
+width: 100%;
+ 
+  margin: 2rem 0;
+}
+
+.chakra-radio__control{
+border:  black 0.5px solid!important
 }
 
 

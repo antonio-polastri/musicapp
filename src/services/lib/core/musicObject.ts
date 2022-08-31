@@ -1,4 +1,4 @@
-export type Origin  = "discogs" | "deezer" | "musicbrainz" | "itunes" | "lyricsovh" |"musixmatch"; 
+export type Origin  = "discogs" | "deezer" | "musicbrainz" | "itunes" | "lyricsovh" |"musixmatch" | "lastfm" |"predicthq"; 
 export interface Track{
 
     name : string;
@@ -84,6 +84,31 @@ export interface Album{
     video? : string;
     descriptions? : string;
     albums? : Album[];
+   
+
+}
+
+export interface Bio{
+
+    name : string;
+    
+   
+
+}
+
+export interface Event{
+
+    title : string;
+    category : string;
+    start: Date;
+    end :Date;
+    location : number[];
+    country : string;
+    id : string;
+    origin : Origin;
+    entities : {};
+    timezone : string;
+    
    
 
 }

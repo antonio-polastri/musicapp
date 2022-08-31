@@ -13,8 +13,9 @@ export const  ListArtist = (value : any)=> {
       
         <ul>
           { Array.isArray(value.listMB) &&  value.listMB.map((item: Artist,i:number)=> {
-            
-             return <ArtistData item={item} setAlbums={value.setAlbums} getAlbums={value.getAlbums} albums={value.albums} setTitles={value.setTitles} titles={value.titles} getWiki={value.getWiki} ></ArtistData>
+              
+
+             return <ArtistData  setEventdraw={value.setEventdraw} setBiodraw={value.setBiodraw} getEvent={value.getEvent} getBio={value.getBio} item={item}  artistbio={value.artistbio} setAlbums={value.setAlbums} getAlbums={value.getAlbums} albums={value.albums} setTitles={value.setTitles} titles={value.titles} getWiki={value.getWiki} ></ArtistData>
 
             })
           }

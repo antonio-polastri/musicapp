@@ -14,11 +14,12 @@ export   const TrackDetails = (par:any)=>{
      }
      {
      par.item.preview &&(
+       <div id="audiocontainer">
          <audio controls>
          <source src={par.item.preview} type="audio/mp3" />
          Il browser non supporta il tag audio
          </audio>
-         )
+         </div>  )
        }
      
      </>

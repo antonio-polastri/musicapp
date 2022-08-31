@@ -1,5 +1,6 @@
 import axios from "axios";
 import fetchJsonp from "fetch-jsonp";
+import authHeader from './../../auth-header'
 
 //https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
 export const axiosRequestItunes = axios.create({
@@ -68,7 +69,8 @@ export const axiosRequestMusix = axios.create({
     'User-Agent' : 'MyMusicaap/1.0 +http://localhost'
     }*/
 });
+
 export const axiosReq = axios.create({
-  baseURL: " http://localhost:9999/api/",
-   
+  baseURL: "http://localhost:9999/api/",
+   //headers: authHeader() ,
 });

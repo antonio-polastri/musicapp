@@ -6,7 +6,7 @@ import './../static/spinner.css';
 export const Artist = (item:any)=>{
 
   return(
-
+   
     <div>
       <h1>{item.artist.name}</h1><br/> 
       <p>{item.artist.profile}</p><br/> 
@@ -20,6 +20,6 @@ export const Artist = (item:any)=>{
       })}
       </div>
     </div>
-
+    
   );
 }
