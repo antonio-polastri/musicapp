@@ -64,10 +64,7 @@ export const axiosRequestDeezer= axios.create({
 
 export const axiosRequestMusix = axios.create({
   baseURL: " https://api.musixmatch.com/ws/1.1",
-  /*headers: {
-    Accept : 'application/json',
-    'User-Agent' : 'MyMusicaap/1.0 +http://localhost'
-    }*/
+   
 });
 
 export const axiosReq = axios.create({
