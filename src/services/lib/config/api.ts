@@ -72,5 +72,5 @@ export const axiosRequestMusix = axios.create({
 
 export const axiosReq = axios.create({
   baseURL: "http://localhost:9999/api/",
-   //headers: authHeader() ,
+  
 });
