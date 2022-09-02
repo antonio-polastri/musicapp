@@ -56,10 +56,7 @@ export const axiosRequestDS = axios.create({
 
 export const axiosRequestDeezer= axios.create({
   baseURL: "https://api.deezer.com/",
-  /*headers: {
-    Accept : 'application/json',
-    'User-Agent' : 'MyMusicaap/1.0 +http://localhost'
-    }*/
+  
 });
 
 export const axiosRequestMusix = axios.create({
