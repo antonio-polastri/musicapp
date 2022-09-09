@@ -1,16 +1,8 @@
 import React ,{useState,useEffect} from 'react';
 import { Link, useLocation } from "react-router-dom";
 import './App.css';
- 
 /* SERVICE */
- 
-import * as Call from './services/lib/config/api';
-
 //import   {Album} from './component/album';
-
- 
-import { AxiosInstance } from 'axios';
- 
 import ReactDOM from 'react-dom';
 import AuthService from "./services/auth.service";
 import {
@@ -26,17 +18,13 @@ import reportWebVitals from './reportWebVitals';
 import { ChakraProvider } from '@chakra-ui/react' 
 import { Header } from './component/template/header';
 import { Footer } from './component/template/footer';
-import { boolean } from 'yup';
 import { Innerpage } from './component/template/innerpage';
 import { Signup } from './component/template/signupPage';
  
-
-
-
 const Appcontainer = () => {
      
   const [logged,setLogged] = useState(false);
-
+/*
   useEffect(() => {
     
     setLogged(!AuthService.getCurrentUser());
@@ -44,7 +32,7 @@ const Appcontainer = () => {
     console.log("logged "+logged);
 
   });
- 
+ */
  
   
 return (
@@ -63,9 +51,7 @@ return (
                 <Route path="admin" element={<RequireAdminAuth><App /></RequireAdminAuth>} />
                 
            </>   
-       
-      
-
+        
         </Routes>
       </React.StrictMode> 
     </BrowserRouter>

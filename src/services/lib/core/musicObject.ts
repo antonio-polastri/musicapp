@@ -112,4 +112,17 @@ export interface Event{
    
 
 }
- 
+export interface Hotel{
+
+    hotelId : string;
+    hotelName : string;
+    starRating : number ;
+    dailyRate : number;
+    crossedOutRate : number;
+    imageURL : string;
+    landingURL : string;
+    includeBreakfast : boolean;
+    freeWifi : boolean;
+    
+
+}

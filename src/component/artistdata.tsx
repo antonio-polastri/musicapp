@@ -33,11 +33,13 @@ export const ArtistData = (item:any) =>{
             :(<Avatar src={blank} size='lg' onClick={()=> {item.getBio(item.item.name); item.setBiodraw(true)}} />)
             }
             <div>
+              
               <div className="artist_name">
             
                 <h1 title={item.item.name}  onClick={()=>{item.getBio(item.item.name); item.getAlbums(item.item.id,item.item.origin) ;item.setTitles({artistname :item.item.name,artistId:item.item.id});}} > {item.item.name} </h1>
               
               <div className='subname_elements'  >
+
                 <span className={`stamp-${item.item.origin} stamp`}>{item.item.origin}</span>
                
                 <Button className='bio_button'size='xs' colorScheme='teal'   onClick={()=> {item.getBio(item.item.name); item.setBiodraw(true)}}>Bio</Button>
@@ -45,6 +47,7 @@ export const ArtistData = (item:any) =>{
                 <Button className='bio_button'size='xs' colorScheme='linkedin'   onClick={()=> {item.getEvent(item.item.name); }}>Events!</Button>
              
                 </div>
+
               </div> 
 
            

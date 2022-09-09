@@ -53,5 +53,10 @@ class DataServiceCall {
             return( (await proxy.get(`concert?artist=${artist}`,{headers: authHeader()})).data)
         }
 
+        getHotels = async(lat : string,lon : string) =>{
+             
+            return( ((await proxy.get(`hotel?lon=${lon}&lat=${lat}`,{headers: authHeader()})).data).hotels)
+        }
+
 }
 export default new DataServiceCall();

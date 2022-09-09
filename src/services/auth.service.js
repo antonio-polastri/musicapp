@@ -1,7 +1,7 @@
 import axios from "axios";
 import ep from '../services/lib/config/api' 
  
-const API_URL = 'http://localhost:9999/api/auth/';
+const API_URL = 'https://restapi.musicaggregator.eu/api/auth/';
 
 class AuthService {
  

@@ -1,19 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import AuthService from "./services/auth.service";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate
-} from "react-router-dom";
+ 
 import './index.css';
-import App from './App';
-import { Login } from './component/template/loginpage';
+ 
 import reportWebVitals from './reportWebVitals';
-import { ChakraProvider } from '@chakra-ui/react' 
-import { Header } from './component/template/header';
-import { Footer } from './component/template/footer';
+ 
 import Appcontainer from './Appcontainer';
 
 

@@ -17,7 +17,6 @@ export const Innerlayout = (item:any)=>{
       gridTemplateColumns={' 100%'}
       h='100'
       gap='1'
-     
       fontWeight='bold'
     >
          <GridItem p='2'  area={'header'}>

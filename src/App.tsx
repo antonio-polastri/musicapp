@@ -2,8 +2,6 @@ import React ,{useState,useEffect} from 'react';
 import { Link } from "react-router-dom";
 import './App.css';
 
- 
-
 /* SERVICE */
 
 //import   DataServiceDeezer from './services/data.serviceDeezer';
@@ -34,6 +32,7 @@ import DataServiceCall from './services/data.service'
 import { Map, Marker, ZoomControl } from 'pigeon-maps'
 import { stamenTerrain } from 'pigeon-maps/providers'
 import { MapInner } from './component/mapinner';
+import { MapInnerMulti } from './component/mapinner_multi';
 
 
 const App = () => {
@@ -49,6 +48,7 @@ const App = () => {
 
   const [artistbio,setArtistbio] = useState(Object);
   const [artistEvent,setArtistEvent] = useState(Object);
+  const [hotelEvent,setHotelEvent] = useState(Object);
   const [titles,setTitles]  =  useState({songname:'',albumname:'',artistname: ''});
 
   const [searchtype, setSearchtype] = useState({type:'',q:''})
@@ -60,6 +60,7 @@ const App = () => {
   const [songlistdraw, setSonglist] = useState(false);
   const [lyricdraw, setLyricdraw] = useState(false);
   const [eventdraw, setEventdraw] = useState(false);
+  const [hoteldraw, setHoteldraw] = useState(false);
   const [biodraw, setBiodraw] = useState(false);
 
   const [spinnerLoading1, setSpinnerLoading1] = useState(false);
@@ -68,10 +69,7 @@ const App = () => {
   const [spinnerLoading4, setSpinnerLoading4] = useState(false);
 
   const toast = useToast();
-
-
  
-
 
   const getAlbums = async (artistid : string,origin : Origin) =>{
      
@@ -160,10 +158,7 @@ setSpinnerLoading4(false);
     let dataBio : any = await DataServiceCall.getBio(artist);
     console.log(dataBio)
     dataBio.error ?  toastNoData("Bio data","Bio doesn't exist",'warning',toast) :setArtistbio(dataBio) ;
-    
-    
      
-    
   }
 
   //eliminare il get artist e creare un oggetto ricerca che in base al tipo di ricerca popola le rispettive liste
@@ -188,6 +183,19 @@ setSpinnerLoading4(false);
     setArtistEvent(ar); 
   }
   
+  const getEventHotels = async(lat: string,lon: string )=>{
+    //  console.log("gethotels")
+   // console.log(lat+ " "+lon)
+    setHoteldraw(false)
+    setHotelEvent({})
+   // let ar : [] = 
+    let hotels =  await DataServiceCall.getHotels(lat,lon) ;
+   //  console.log(hotels)
+    hotels.total > 0 ?  setHotelEvent({'hotels':hotels,'coordinates':{'lat':lat,'lon':lon}}) : toastNoData("Hotels data","Hotel doesn't reach",'warning',toast)
+    hotels.total > 0 ?  setHoteldraw(true)  :  setHotelEvent({}); 
+    //console.log("adadadadada "+hotels.hotels)
+  }
+
   const getSearch = async(q:string,tos:string) =>{
 
     //listMB.length = 0;
@@ -333,11 +341,13 @@ setSpinnerLoading4(false);
                           {item.title}
                           
                         </Heading>
+                        <Button className='bio_button'size='xs' colorScheme='linkedin'   onClick={()=> {getEventHotels(item.location[1],item.location[0]) }}>Hotels!</Button>
+                       
                         <Text fontSize='lg' >{ item.start	}  </Text>
                         {item.entities[0] && <Text fontSize='sm'> {item.entities[0].name}</Text>}
                         {item.entities[0] && <Text fontSize='sm'  mb={3}> {item.entities[0].formatted_address}</Text>}
                         {item.entities[0] && 
-                          <MapInner lat={item.location[0]} lon={item.location[1]}></MapInner>
+                          <MapInner lat={item.location[1]} lon={item.location[0]}></MapInner>
                           }
                       </GridItem>
                       
@@ -348,17 +358,76 @@ setSpinnerLoading4(false);
                 )
               } </Grid>
                 </>}
-              ></Layer>     
+              ></Layer>   
+
+          <Layer side="top" size="full" context="Hotels" open ={hoteldraw} close={setHoteldraw}  children={ 
+            <>  <Grid templateColumns='repeat(3, 1fr)' gap={6}>
+              {
+/**categoryCode
+: 
+"4EST"
+categoryName
+: 
+"4 STARS"
+code
+: 
+187882
+currency
+: 
+"EUR"
+destinationCode
+: 
+"PRI"
+destinationName
+: 
+"Seychelles Island"
+latitude
+: 
+"-4.320131301879883"
+longitude
+: 
+"55.751983642578125"
+maxRate
+: 
+"549.72"
+minRate
+: 
+"320.90"
+name
+: 
+"Acajou Beach Resort" */}
+                      <>
+                     
+                      <GridItem  >
+
+                     { 
+                     
+                     /*   <Heading as='h1' size='md' fontWeight='bold' mb={3}>
+                          {item.name} - {item.categoryName} - {item.destinationName}
+                          lat={item.latitude} lon={item.longitude}
+               </Heading> 
+                       
+                       
+                       
+                         
+                         <Text fontSize='sm'  mb={3}> Price : {item.minRate} - {item.maxRate}</Text> 
+                         */}
+
+                          <MapInnerMulti hotelEvent={hotelEvent} ></MapInnerMulti>
+                          
+                      </GridItem>
+                      
+                   
+                   
+                    </>
+                  </Grid>
+                </>}
+
+          
+              ></Layer>    
 
 
-
-           {/*  <Layer side="right" size="full" context="Lyric" open ={lyricdraw} close={setLyricdraw} children={ <>
-              {   spinnerLoading4 && <LoadingSpinner /> }
-                <TrackDetailsComponent item={trackDetail}></TrackDetailsComponent>   
-
-                <LyricComponent lyric={lyric}></LyricComponent>
-                </>}></Layer>            
-           */}
+           
       <div className='top'>
   
 
